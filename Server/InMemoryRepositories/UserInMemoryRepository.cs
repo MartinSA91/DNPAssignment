@@ -3,7 +3,7 @@ using RepositoryContract;
 
 namespace InMemoryRepositories;
 
-public class UserInMemoryRepository
+public class UserInMemoryRepository : IUserRepository
 {
     public List<User> users;
 
