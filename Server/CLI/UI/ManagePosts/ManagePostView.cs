@@ -48,4 +48,5 @@ namespace CLI.UI.ManagePosts
             }
         }
     }
+    
 }

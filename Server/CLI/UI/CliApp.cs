@@ -27,10 +27,12 @@ public class CliApp
         while (running)
         {
             Console.WriteLine("\n--- Menu ---");
-            Console.WriteLine("(1) Admin Posts");
-            Console.WriteLine("(2) Administrér Users");
+            Console.WriteLine("(1) Create Posts");
+            Console.WriteLine("(2) Create Users");
+            Console.WriteLine("(3) Create Comment for Post");
+            Console.WriteLine("(4) List Comments for Post");
             Console.WriteLine("(0) Return");
-            Console.Write("Valg: ");
+            Console.Write("Choose: ");
             var input = Console.ReadLine();
 
             if (!int.TryParse(input, out int selection))
