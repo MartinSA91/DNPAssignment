@@ -1,34 +1,34 @@
 ﻿using RepositoryContract;
+using Entities;
 
-namespace CLI.UI.ManageUsers;
-
-public class CreateUserView
+namespace CLI.UI.ManageUsers
 {
-    private readonly IUserRepository userRepository;
-    
-    public CreateUserView(IUserRepository userRepository)
+    public class CreateUserView
     {
-        this.userRepository = userRepository;
-    }
-    
-    public void Show()
-    {
-        Console.WriteLine("\n--- Create New User ---");
-        Console.Write("Enter Username: ");
-        string username = Console.ReadLine();
-        Console.Write("Enter Password: ");
-        string password = Console.ReadLine();
-        
-        var newUser = new Entities.User
+        private readonly IUserRepository userRepository;
+
+        public CreateUserView(IUserRepository userRepository)
         {
-            UserName = username,
-            Password = password
-        };
-        
-        userRepository.AddAsync(newUser).Wait();
-        Console.WriteLine("User created successfully.");
+            this.userRepository = userRepository;
+        }
+
+        public async Task ShowAsync()
+        {
+            Console.Write("Enter username: ");
+            var username = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                Console.WriteLine("Username cannot be empty.");
+                return;
+            }
+            
+            
+
+            var user = new User { UserName = username };
+            await userRepository.AddAsync(user);
+
+            Console.WriteLine($"User '{username}' created successfully!");
+        }
     }
-    
-    
-    
 }

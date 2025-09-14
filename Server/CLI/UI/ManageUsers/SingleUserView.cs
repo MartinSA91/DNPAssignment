@@ -8,29 +8,29 @@ namespace CLI.UI.ManageUsers
 
         public SingleUserView(IUserRepository userRepository)
         {
-            userRepository = userRepository;
+            this.userRepository = userRepository;
         }
 
-        public void Show()
+        public async Task ShowAsync()
         {
-            Console.Write("\nEnter User ID: ");
+            Console.Write("Enter user ID: ");
             var input = Console.ReadLine();
 
-            if (!int.TryParse(input, out int id))
+            if (!int.TryParse(input, out int userId))
             {
                 Console.WriteLine("Invalid input.");
                 return;
             }
 
-            var user = userRepository.GetSingleAsync(id);
-            if (user == null)
+            try
             {
-                Console.WriteLine("User Not Found.");
-                return;
+                var user = await userRepository.GetSingleAsync(userId);
+                Console.WriteLine($"[{user.Id}] {user.UserName}");
             }
-
-            Console.WriteLine($"ID: {user.Id}");
-            
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

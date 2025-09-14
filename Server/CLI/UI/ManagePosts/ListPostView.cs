@@ -1,23 +1,34 @@
 ﻿using RepositoryContract;
 
-namespace CLI.UI.ManagePosts;
-
-public class ListPostsView
+namespace CLI.UI.ManagePosts
 {
-    private readonly IPostRepository postRepository;
+    public class ListPostsView
+    {
+        private readonly IPostRepository postRepository;
 
-    public ListPostsView(IPostRepository postRepository)
-    {
-        this.postRepository = postRepository;
-    }
-    
-    public void Show()
-    {
-        var posts = postRepository.GetMany();
-        Console.WriteLine("\n--- All Posts ---");
-        foreach (var post in posts)
+        public ListPostsView(IPostRepository postRepository)
         {
-            Console.WriteLine($"ID: {post.Id}, Title: {post.Title}");
+            this.postRepository = postRepository;
+        }
+
+        public async Task ShowAsync()
+        {
+            Console.WriteLine("\n--- All Posts ---");
+
+            var posts = postRepository.GetMany().ToList();
+
+            if (!posts.Any())
+            {
+                Console.WriteLine("No posts found.");
+                return;
+            }
+
+            foreach (var post in posts)
+            {
+                Console.WriteLine($"[{post.Id}] {post.Title} - {post.Body}");
+            }
+
+            await Task.CompletedTask; 
         }
     }
 }

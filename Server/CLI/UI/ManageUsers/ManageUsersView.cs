@@ -1,41 +1,50 @@
-﻿namespace CLI.UI.ManageUsers;
+﻿using System;
+using CLI.UI.ManageUsers;
 
-public class ManageUsersView
+namespace CLI.UI.ManageUsers
 {
-    private readonly CreateUserView createUserView;
-    private readonly ListUsersView listUsersView;
-    private readonly SingleUserView singleUserView;
-    
-    
-    
-    public ManageUsersView(CreateUserView createUserView, ListUsersView listUsersView, SingleUserView singleUserView)
+    public class ManageUsersView
     {
-        this.createUserView = createUserView;
-        this.listUsersView = listUsersView;
-        this.singleUserView = singleUserView;
-    }
-    
-    
-    public Task Show()
-    {
-        while (true)
+        private readonly CreateUserView createUserView;
+        private readonly ListUsersView listUsersView;
+        private readonly SingleUserView singleUserView;
+
+        public ManageUsersView(CreateUserView createUserView, ListUsersView listUsersView, SingleUserView singleUserView)
         {
-            Console.WriteLine("\n--- Manage Users ---");
-            Console.WriteLine("1. Create new user");
-            Console.WriteLine("0. Back to main menu");
+            this.createUserView = createUserView;
+            this.listUsersView = listUsersView;
+            this.singleUserView = singleUserView;
+        }
 
-            var input = Console.ReadLine();
-
-            switch (input)
+        public async Task ShowAsync()
+        {
+            while (true)
             {
-                case "1":
-                    createUserView.Show();
-                    break;
-                case "0":
-                    return Task.CompletedTask;
-                default:
-                    Console.WriteLine("Invalid choice, try again.");
-                    break;
+                Console.WriteLine("\n--- Manage Users ---");
+                Console.WriteLine("1. Create new user");
+                Console.WriteLine("2. List users");
+                Console.WriteLine("3. Show single user by ID");
+                Console.WriteLine("0. Back to main menu");
+
+                var input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        await createUserView.ShowAsync();
+                        break;
+                    case "2":
+                        await listUsersView.ShowAsync();
+                        break;
+                    case "3":
+                        await singleUserView.ShowAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice, try again.");
+                        break;
+                }
             }
         }
     }

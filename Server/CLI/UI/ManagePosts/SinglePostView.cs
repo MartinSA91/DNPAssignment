@@ -1,35 +1,36 @@
 ﻿using RepositoryContract;
 
-namespace CLI.UI.ManagePosts;
-
-public class SinglePostView
+namespace CLI.UI.ManagePosts
 {
-    private readonly IPostRepository postRepository;
-    
-    public SinglePostView(IPostRepository postRepository)
+    public class SinglePostView
     {
-        this.postRepository = postRepository;
-    }
-    
-    public void Show()
-    {
-        Console.Write("Enter Post ID: ");
-        if (int.TryParse(Console.ReadLine(), out int postId))
+        private readonly IPostRepository postRepository;
+
+        public SinglePostView(IPostRepository postRepository)
         {
-            var post = postRepository.GetSingleAsync(postId);
-            if (post != null)
-            {
-                Console.WriteLine($"\n--- Post ID: {post.Id} ---");
-                
-            }
-            else
-            {
-                Console.WriteLine("Post not found.");
-            }
+            this.postRepository = postRepository;
         }
-        else
+
+        public async Task ShowAsync()
         {
-            Console.WriteLine("Invalid ID format.");
+            Console.Write("Enter post ID: ");
+            var input = Console.ReadLine();
+
+            if (!int.TryParse(input, out int postId))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
+
+            try
+            {
+                var post = await postRepository.GetSingleAsync(postId);
+                Console.WriteLine($"[{post.Id}] {post.Title} - {post.Body}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

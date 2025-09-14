@@ -8,25 +8,27 @@ namespace CLI.UI.ManageUsers
 
         public ListUsersView(IUserRepository userRepository)
         {
-            userRepository = userRepository;
+            this.userRepository = userRepository;
         }
 
-        public void Show()
+        public async Task ShowAsync()
         {
-            Console.WriteLine("\n--- List of Users ---");
+            Console.WriteLine("\n--- List Users ---");
 
-            var users = userRepository.GetMany();
+            var users = userRepository.GetMany().ToList();
 
             if (!users.Any())
             {
-                Console.WriteLine("No Users Found.");
+                Console.WriteLine("No users found.");
                 return;
             }
 
             foreach (var user in users)
             {
-                Console.WriteLine($"ID: {user.Id}, Navn: {user.UserName}");
+                Console.WriteLine($"[{user.Id}] {user.UserName}");
             }
+
+            await Task.CompletedTask;
         }
     }
 }

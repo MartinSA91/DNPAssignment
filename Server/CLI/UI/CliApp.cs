@@ -2,62 +2,52 @@
 using CLI.UI.ManageUsers;
 using RepositoryContract;
 
-namespace CLI.UI;
-
-public class CliApp
+namespace CLI.UI
 {
-    private readonly ManagePostsView managePostsView;
-    private readonly ManageUsersView manageUsersView;
-
-    public CliApp(IUserRepository userRepository,
-        ICommentRepository commentRepository,
-        IPostRepository postRepository)
+    public class CliApp
     {
-        managePostsView = new ManagePostsView(postRepository);
-        manageUsersView = new ManageUsersView(
-            new CreateUserView(userRepository),
-            new ListUsersView(userRepository),
-            new SingleUserView(userRepository)
-        );
-    }
+        private readonly ManageUsersView manageUsersView;
+        private readonly ManagePostsView managePostsView;
 
-    public async Task StartAsync()
-    {
-        bool running = true;
-        while (running)
+        public CliApp(IUserRepository userRepository, ICommentRepository commentRepository, IPostRepository postRepository)
         {
-            Console.WriteLine("\n--- Menu ---");
-            Console.WriteLine("(1) Create Posts");
-            Console.WriteLine("(2) Create Users");
-            Console.WriteLine("(3) Create Comment for Post");
-            Console.WriteLine("(4) List Comments for Post");
-            Console.WriteLine("(0) Return");
-            Console.Write("Choose: ");
-            var input = Console.ReadLine();
+            manageUsersView = new ManageUsersView(
+                new CreateUserView(userRepository),
+                new ListUsersView(userRepository),
+                new SingleUserView(userRepository)
+            );
 
-            if (!int.TryParse(input, out int selection))
-            {
-                Console.WriteLine("Invalid input.");
-                continue;
-            }
-
-            switch (selection)
-            {
-                case 1:
-                    managePostsView.Show();
-                    break;
-                case 2:
-                    manageUsersView.Show();
-                    break;
-                case 0:
-                    running = false;
-                    break;
-                default:
-                    Console.WriteLine("Ugyldigt valg.");
-                    break;
-            }
+            managePostsView = new ManagePostsView(postRepository, commentRepository, userRepository);
         }
 
-        await Task.CompletedTask;
+        public async Task StartAsync()
+        {
+            bool running = true;
+            while (running)
+            {
+                Console.WriteLine("\n--- Main Menu ---");
+                Console.WriteLine("1. Manage posts");
+                Console.WriteLine("2. Manage users");
+                Console.WriteLine("0. Exit");
+                Console.Write("Select: ");
+                var input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        await managePostsView.ShowAsync();
+                        break;
+                    case "2":
+                        await manageUsersView.ShowAsync();
+                        break;
+                    case "0":
+                        running = false;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        break;
+                }
+            }
+        }
     }
 }

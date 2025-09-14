@@ -33,13 +33,13 @@ namespace CLI.UI.ManageComments
             }
 
             Console.Write("Enter comment: ");
-            var content = Console.ReadLine();
+            var body = Console.ReadLine();
 
             var comment = new Comment
             {
                 UserId = userId,
                 PostId = postId,
-                Body = content ?? string.Empty,
+                Body = body ?? string.Empty,
                 
             };
 
