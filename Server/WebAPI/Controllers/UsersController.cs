@@ -19,7 +19,7 @@ public class UsersController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(dto.UserName)) return BadRequest("Username required.");
 
-        // simple uniqueness check
+      
         var exists = userRepository.GetMany().Any(u => u.UserName == dto.UserName);
         if (exists) return Conflict("Username already taken.");
 

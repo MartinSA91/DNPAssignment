@@ -31,7 +31,7 @@ public class PostsController : ControllerBase
         return CreatedAtAction(nameof(GetSingle), new { id = post.Id }, result);
     }
 
-    // GET api/posts/{id}?includeComments=true
+  
     [HttpGet("{id:int}")]
     public async Task<ActionResult<PostDto>> GetSingle(int id, [FromQuery] bool includeComments = false)
     {
@@ -55,7 +55,7 @@ public class PostsController : ControllerBase
         }
     }
 
-    // GET api/posts?userId=3&search=hello&page=1&pageSize=20
+    
     [HttpGet]
     public ActionResult<IEnumerable<PostDto>> GetMany([FromQuery] int? userId, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
     {
@@ -110,12 +110,12 @@ public class PostsController : ControllerBase
         }
     }
 
-    // NESTED: POST api/posts/{postId}/comments
+    
     [HttpPost("{postId:int}/comments")]
     public async Task<ActionResult<CommentDto>> AddComment(int postId, CommentCreateDto dto, [FromServices] IUserRepository userRepository)
     {
         if (postId != dto.PostId) return BadRequest("PostId mismatch.");
-        // validate foreign keys
+        
         try { _ = await postRepository.GetSingleAsync(postId); } catch { return NotFound("Post not found."); }
         try { _ = await userRepository.GetSingleAsync(dto.UserId); } catch { return NotFound("User not found."); }
 
@@ -131,7 +131,7 @@ public class PostsController : ControllerBase
         return CreatedAtAction(nameof(GetPostComment), new { postId, commentId = comment.Id }, result);
     }
 
-    // GET api/posts/{postId}/comments/{commentId}
+
     [HttpGet("{postId:int}/comments/{commentId:int}")]
     public async Task<ActionResult<CommentDto>> GetPostComment(int postId, int commentId)
     {

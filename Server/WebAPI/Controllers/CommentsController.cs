@@ -16,7 +16,7 @@ public class CommentsController : ControllerBase
         _commentRepository = commentRepository;
     }
 
-    // POST api/comments
+ 
     [HttpPost]
     public async Task<ActionResult<CommentDto>> Create([FromBody] CommentCreateDto dto)
     {
@@ -35,7 +35,7 @@ public class CommentsController : ControllerBase
         return CreatedAtAction(nameof(GetSingle), new { id = created.Id }, result);
     }
 
-    // GET api/comments/{id}
+  
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CommentDto>> GetSingle(int id)
     {
@@ -50,7 +50,7 @@ public class CommentsController : ControllerBase
         }
     }
 
-    // GET api/comments?postId=10
+   
     [HttpGet]
     public ActionResult<IEnumerable<CommentDto>> GetMany([FromQuery] int? postId)
     {
@@ -61,7 +61,7 @@ public class CommentsController : ControllerBase
         return Ok(list);
     }
 
-    // PUT api/comments/{id}
+
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] CommentUpdateDto dto)
     {
@@ -80,7 +80,7 @@ public class CommentsController : ControllerBase
         }
     }
 
-    // DELETE api/comments/{id}
+   
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
