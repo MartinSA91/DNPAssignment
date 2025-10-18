@@ -17,14 +17,14 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserDto>> Create(UserCreateDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Username)) return BadRequest("Username required.");
+        if (string.IsNullOrWhiteSpace(dto.UserName)) return BadRequest("Username required.");
 
         // simple uniqueness check
-        var exists = userRepository.GetMany().Any(u => u.Username == dto.Username);
+        var exists = userRepository.GetMany().Any(u => u.UserName == dto.UserName);
         if (exists) return Conflict("Username already taken.");
 
-        var user = await userRepository.AddAsync(new User { Username = dto.Username });
-        return CreatedAtAction(nameof(GetSingle), new { id = user.Id }, new UserDto(user.Id, user.Username));
+        var user = await userRepository.AddAsync(new User { UserName = dto.UserName });
+        return CreatedAtAction(nameof(GetSingle), new { id = user.Id }, new UserDto(user.Id, user.UserName));
     }
 
     [HttpGet("{id:int}")]
@@ -33,7 +33,7 @@ public class UsersController : ControllerBase
         try
         {
             var user = await userRepository.GetSingleAsync(id);
-            return Ok(new UserDto(user.Id, user.Username));
+            return Ok(new UserDto(user.Id, user.UserName));
         }
         catch (InvalidOperationException)
         {
@@ -41,19 +41,19 @@ public class UsersController : ControllerBase
         }
     }
 
-    // GET api/users?search=mar&page=1&pageSize=20
+    
     [HttpGet]
     public ActionResult<IEnumerable<UserDto>> GetMany([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
     {
         var query = userRepository.GetMany();
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(u => u.Username.Contains(search));
+            query = query.Where(u => u.UserName.Contains(search));
 
         var items = query
             .OrderBy(u => u.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(u => new UserDto(u.Id, u.Username))
+            .Select(u => new UserDto(u.Id, u.UserName))
             .ToList();
 
         return Ok(items);
@@ -66,7 +66,7 @@ public class UsersController : ControllerBase
 
         try
         {
-            await userRepository.UpdateAsync(new User { Id = dto.Id, Username = dto.Username });
+            await userRepository.UpdateAsync(new User { Id = dto.Id, UserName = dto.UserName });
             return NoContent();
         }
         catch (InvalidOperationException)

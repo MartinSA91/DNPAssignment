@@ -3,24 +3,46 @@ using Entities;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryContract;
 
+namespace WebAPI.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class CommentsController : ControllerBase
 {
-    private readonly ICommentRepository commentRepository;
+    private readonly ICommentRepository _commentRepository;
 
     public CommentsController(ICommentRepository commentRepository)
     {
-        this.commentRepository = commentRepository;
+        _commentRepository = commentRepository;
     }
 
+    // POST api/comments
+    [HttpPost]
+    public async Task<ActionResult<CommentDto>> Create([FromBody] CommentCreateDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Body))
+            return BadRequest("Body is required.");
+
+        var created = await _commentRepository.AddAsync(new Comment
+        {
+            PostId = dto.PostId,
+            UserId = dto.UserId,
+            Body = dto.Body,
+           
+        });
+
+        var result = new CommentDto(created.Id, created.PostId, created.UserId, created.Body);
+        return CreatedAtAction(nameof(GetSingle), new { id = created.Id }, result);
+    }
+
+    // GET api/comments/{id}
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CommentDto>> GetSingle(int id)
     {
         try
         {
-            var c = await commentRepository.GetSingleAsync(id);
-            return Ok(new CommentDto(c.Id, c.PostId, c.UserId, c.Content));
+            var c = await _commentRepository.GetSingleAsync(id);
+            return Ok(new CommentDto(c.Id, c.PostId, c.UserId, c.Body));
         }
         catch (InvalidOperationException)
         {
@@ -32,22 +54,24 @@ public class CommentsController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<CommentDto>> GetMany([FromQuery] int? postId)
     {
-        var q = commentRepository.GetMany();
+        var q = _commentRepository.GetMany();
         if (postId.HasValue) q = q.Where(c => c.PostId == postId.Value);
-        var list = q.Select(c => new CommentDto(c.Id, c.PostId, c.UserId, c.Content)).ToList();
+
+        var list = q.Select(c => new CommentDto(c.Id, c.PostId, c.UserId, c.Body)).ToList();
         return Ok(list);
     }
 
+    // PUT api/comments/{id}
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, CommentUpdateDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] CommentUpdateDto dto)
     {
         if (id != dto.Id) return BadRequest("ID mismatch.");
 
         try
         {
-            var existing = await commentRepository.GetSingleAsync(id);
-            existing.Content = dto.Content;
-            await commentRepository.UpdateAsync(existing);
+            var existing = await _commentRepository.GetSingleAsync(id);
+            existing.Body = dto.Body;
+            await _commentRepository.UpdateAsync(existing);
             return NoContent();
         }
         catch (InvalidOperationException)
@@ -56,12 +80,12 @@ public class CommentsController : ControllerBase
         }
     }
 
+    // DELETE api/comments/{id}
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            await commentRepository.DeleteAsync(id);
             return NoContent();
         }
         catch (InvalidOperationException)

@@ -23,12 +23,11 @@ public class PostsController : ControllerBase
         var post = await postRepository.AddAsync(new Post
         {
             Title = dto.Title,
-            Content = dto.Content,
+            Body = dto.Body,
             UserId = dto.UserId,
-            CreatedAt = DateTime.Now
         });
 
-        var result = new PostDto(post.Id, post.Title, post.Content, post.UserId, null);
+        var result = new PostDto(post.Id, post.Title, post.Body, post.UserId, null);
         return CreatedAtAction(nameof(GetSingle), new { id = post.Id }, result);
     }
 
@@ -44,10 +43,10 @@ public class PostsController : ControllerBase
             if (includeComments)
             {
                 var comments = commentRepository.GetMany().Where(c => c.PostId == id);
-                commentsDto = comments.Select(c => new CommentDto(c.Id, c.PostId, c.UserId, c.Content));
+                commentsDto = comments.Select(c => new CommentDto(c.Id, c.PostId, c.UserId, c.Body));
             }
 
-            var dto = new PostDto(post.Id, post.Title, post.Content, post.UserId, commentsDto);
+            var dto = new PostDto(post.Id, post.Title, post.Body, post.UserId, commentsDto);
             return Ok(dto);
         }
         catch (InvalidOperationException)
@@ -64,13 +63,13 @@ public class PostsController : ControllerBase
 
         if (userId.HasValue) query = query.Where(p => p.UserId == userId.Value);
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(p => p.Title.Contains(search) || p.Content.Contains(search));
+            query = query.Where(p => p.Title.Contains(search) || p.Body.Contains(search));
 
         var items = query
             .OrderByDescending(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new PostDto(p.Id, p.Title, p.Content, p.UserId, null))
+            .Select(p => new PostDto(p.Id, p.Title, p.Body, p.UserId, null))
             .ToList();
 
         return Ok(items);
@@ -87,7 +86,7 @@ public class PostsController : ControllerBase
             {
                 Id = dto.Id,
                 Title = dto.Title,
-                Content = dto.Content
+                Body = dto.Body
             });
             return NoContent();
         }
@@ -124,11 +123,11 @@ public class PostsController : ControllerBase
         {
             PostId = dto.PostId,
             UserId = dto.UserId,
-            Content = dto.Content,
-            CreatedAt = DateTime.Now
+            Body = dto.Body,
+            
         });
 
-        var result = new CommentDto(comment.Id, comment.PostId, comment.UserId, comment.Content);
+        var result = new CommentDto(comment.Id, comment.PostId, comment.UserId, comment.Body);
         return CreatedAtAction(nameof(GetPostComment), new { postId, commentId = comment.Id }, result);
     }
 
@@ -140,7 +139,7 @@ public class PostsController : ControllerBase
         {
             var comment = await commentRepository.GetSingleAsync(commentId);
             if (comment.PostId != postId) return NotFound();
-            return Ok(new CommentDto(comment.Id, comment.PostId, comment.UserId, comment.Content));
+            return Ok(new CommentDto(comment.Id, comment.PostId, comment.UserId, comment.Body));
         }
         catch (InvalidOperationException)
         {
