@@ -1,20 +1,20 @@
 ﻿using System.Text.Json;
+using ApiContracts;
 
 namespace BlazorApp.Services;
 
 public class HttpUserService : IUserService
-
 {
-    private readonly HttpClient  httpClient;  
+    private readonly HttpClient httpClient;  
     
     public HttpUserService(HttpClient httpClient)
     {
         this.httpClient = httpClient;
     }
 
-    public Task<UserDto> AddUserAsync(CreateUserDto request)
+    public async Task<UserDto> AddUserAsync(UserCreateDto request)
     {
-        HttpResponseMessage httpResponse = await client.PostAsJsonAsync("users", request);
+        HttpResponseMessage httpResponse = await httpClient.PostAsJsonAsync("users", request);
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -26,27 +26,21 @@ public class HttpUserService : IUserService
         })!;
     }
     
-    public Task UpdateUserAsync(int id, UserUpdateDto request)
+    public async Task UserUpdateAsync(int id, UserUpdateDto request)
     {
-        HttpResponseMessage httpResponse = await client.PutAsJsonAsync($"users/{id}", request);
+        HttpResponseMessage httpResponse = await httpClient.PutAsJsonAsync($"users/{id}", request);
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)  
-            return Task.CompletedTask;
         {
             throw new Exception(response);
         }
-        rerurn JsonSerializer.Deserialize<UserDto>(response, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
     }
     
-    public Task DeleteUserAsync(int id)
+    public async Task<UserDto?> DeleteUserAsync(int id)
     {
-        HttpResponseMessage httpResponse = await client.DeleteAsync($"users/{id}");
+        HttpResponseMessage httpResponse = await httpClient.DeleteAsync($"users/{id}");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)  
-            return Task.CompletedTask;
         {
             throw new Exception(response);
         }
@@ -56,9 +50,9 @@ public class HttpUserService : IUserService
         });
     }
     
-    public Task<UserDto> GetUserAsync(int id)
+    public async Task<UserDto> GetUserAsync(int id)
     {
-        HttpResponseMessage httpResponse = await client.GetAsync($"users/{id}");
+        HttpResponseMessage httpResponse = await httpClient.GetAsync($"users/{id}");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -70,9 +64,9 @@ public class HttpUserService : IUserService
         })!;
     }
     
-    public Task<List<UserDto>> GetUsersAsync(string? search = null, int page = 1, int pageSize = 50)
+    public async Task<List<UserDto>> GetUsersAsync(string? search = null, int page = 1, int pageSize = 50)
     {
-        HttpResponseMessage httpResponse = await client.GetAsync($"users?search={search}&page={page}&pageSize={pageSize}");
+        HttpResponseMessage httpResponse = await httpClient.GetAsync($"users?search={search}&page={page}&pageSize={pageSize}");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -83,6 +77,4 @@ public class HttpUserService : IUserService
             PropertyNameCaseInsensitive = true
         })!;
     }
-    
-    
 }

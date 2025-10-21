@@ -1,4 +1,7 @@
 ﻿using System.Text.Json;
+using System.Net.Http;
+using ApiContracts;
+
 
 namespace BlazorApp.Services;
 
@@ -11,7 +14,7 @@ public class HttpPostService : IPostService
         this.httpClient = httpClient;
     }
     
-    public Task<PostDto> AddPostAsync(CreatePostDto request)
+    public async Task<PostDto> AddPostAsync(PostCreateDto request)
     {
         HttpResponseMessage httpResponse = await httpClient.PostAsJsonAsync("posts", request);
         string response = await httpResponse.Content.ReadAsStringAsync();
@@ -25,7 +28,7 @@ public class HttpPostService : IPostService
         })!;
     }
     
-    public Task UpdatePostAsync(int id, PostUpdateDto request)
+    public async Task<PostDto> UpdatePostAsync(int id, PostUpdateDto request)
     {
         HttpResponseMessage httpResponse = await httpClient.PutAsJsonAsync($"posts/{id}", request);
         string response = await httpResponse.Content.ReadAsStringAsync();
@@ -39,7 +42,7 @@ public class HttpPostService : IPostService
         })!;
     }
     
-    public Task DeletePostAsync(int id)
+    public async Task<PostDto> DeletePostAsync(int id)
     {
         HttpResponseMessage httpResponse = await httpClient.DeleteAsync($"posts/{id}");
         string response = await httpResponse.Content.ReadAsStringAsync();
@@ -47,10 +50,13 @@ public class HttpPostService : IPostService
         {
             throw new Exception(response);
         }
-        return Task.CompletedTask;
+       return JsonSerializer.Deserialize<PostDto>(response, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        })!;
     }
     
-    public Task<PostDto> GetPostAsync(int id)
+    public async Task<PostDto> GetPostAsync(int id)
     {
         HttpResponseMessage httpResponse = await httpClient.GetAsync($"posts/{id}");
         string response = await httpResponse.Content.ReadAsStringAsync();
@@ -64,7 +70,7 @@ public class HttpPostService : IPostService
         })!;
     }
     
-    public Task<List<PostDto>> GetPostsAsync(string? search = null, int page = 1, int pageSize = 50)
+    public async Task<List<PostDto>> GetPostsAsync(string? search = null, int page = 1, int pageSize = 50)
     {
         HttpResponseMessage httpResponse = await httpClient.GetAsync($"posts?search={search}&page={page}&pageSize={pageSize}");
         string response = await httpResponse.Content.ReadAsStringAsync();
