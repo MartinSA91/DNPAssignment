@@ -1,5 +1,3 @@
-
-
 using FileRepositories;
 using RepositoryContract;
 
@@ -10,6 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Add CORS policy to allow the Blazor client origins used in development
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalBlazor", policy =>
+    {
+        policy.WithOrigins("https://localhost:7019", "http://localhost:5273")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddScoped<IPostRepository, PostFileRepository>();
 builder.Services.AddScoped<IUserRepository, UserFileRepository>();
@@ -24,6 +33,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS using the named policy
+app.UseCors("AllowLocalBlazor");
 
 app.UseAuthorization();
 
