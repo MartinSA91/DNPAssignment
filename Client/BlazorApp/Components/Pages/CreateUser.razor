@@ -1,0 +1,38 @@
+﻿@page "/create-user"
+@using ApiContracts
+@using BlazorApp.Services
+@inject IUserService UserService
+@inject NavigationManager Nav
+
+<h3>Create User</h3>
+
+<div class="form-group">
+    <label>Username:</label>
+    <input @bind="username" class="form-control" placeholder="Enter username" />
+</div>
+
+<button class="btn btn-primary mt-2" @onclick="CreateUserAsync">Create</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">@message</div>
+}
+
+@code {
+    private string username = "";
+    private string message = "";
+
+    private async Task CreateUserAsync()
+    {
+        try
+        {
+            await UserService.AddUserAsync(new UserCreateDto(username));
+            message = "User created successfully!";
+            Nav.NavigateTo("/users");
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+}

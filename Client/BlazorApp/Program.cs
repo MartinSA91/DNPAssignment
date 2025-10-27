@@ -9,7 +9,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped(_ => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7274/api/")
+    BaseAddress = new Uri("https://localhost:7274/")
 });
 
 // Register API services

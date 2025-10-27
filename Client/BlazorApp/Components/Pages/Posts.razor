@@ -1,61 +1,45 @@
 ﻿@page "/posts"
 @using ApiContracts
-@inject BlazorApp.Services.IPostService PostService
+@using BlazorApp.Services
+@inject IPostService PostService
+@inject NavigationManager Nav
 
-<h1>Posts</h1>
+<h3>Posts</h3>
 
-@if (isLoading)
+@if (posts is null)
 {
     <p><em>Loading posts...</em></p>
 }
-else if (!string.IsNullOrEmpty(errorMessage))
+else if (posts.Count == 0)
 {
-    <div class="alert alert-danger">@errorMessage</div>
+    <p>No posts available.</p>
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Body</th>
-                <th>UserId</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var p in posts)
-            {
-                <tr>
-                    <td>@p.Id</td>
-                    <td>@p.Title</td>
-                    <td>@p.Body</td>
-                    <td>@p.UserId</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ul class="list-group">
+        @foreach (var post in posts)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>@post.Title</span>
+                <button class="btn btn-link" @onclick="() => GoToDetails(post.Id)">View</button>
+            </li>
+        }
+    </ul>
 }
 
 @code {
-    private List<PostDto> posts = new();
-    private bool isLoading = true;
-    private string? errorMessage;
+    private List<PostDto>? posts;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            posts = await PostService.GetPostsAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        posts = await PostService.GetPostsAsync();
     }
+
+    private void GoToDetails(int id)
+    {
+        Nav.NavigateTo($"/posts/{id}");
+    }
+    
+    
 }
 
