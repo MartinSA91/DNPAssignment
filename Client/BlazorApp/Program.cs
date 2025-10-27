@@ -1,4 +1,5 @@
 using BlazorApp.Components;
+using BlazorApp.Services; // added to register service implementations
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,10 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped(sp => new HttpClient
+builder.Services.AddScoped(_ => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:5067/")
+    BaseAddress = new Uri("https://localhost:7274/api/")
 });
+
+// Register API services
+builder.Services.AddScoped<IUserService, HttpUserService>();
+builder.Services.AddScoped<IPostService, HttpPostService>();
+builder.Services.AddScoped<ICommentService, HttpCommentService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,61 @@
+﻿@page "/comments"
+@using ApiContracts
+@inject BlazorApp.Services.ICommentService CommentService
+
+<h1>Comments</h1>
+
+@if (isLoading)
+{
+    <p><em>Loading comments...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>PostId</th>
+                <th>UserId</th>
+                <th>Body</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in comments)
+            {
+                <tr>
+                    <td>@c.Id</td>
+                    <td>@c.PostId</td>
+                    <td>@c.UserId</td>
+                    <td>@c.Body</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CommentDto> comments = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            comments = await CommentService.GetCommentsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
