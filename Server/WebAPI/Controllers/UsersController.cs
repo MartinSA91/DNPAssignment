@@ -43,21 +43,13 @@ public class UsersController : ControllerBase
 
     
     [HttpGet]
-    public ActionResult<IEnumerable<UserDto>> GetMany([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+    public async Task<IEnumerable<UserDto>> GetMany([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
     {
-        var query = userRepository.GetMany();
-        if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(u => u.UserName.Contains(search));
-
-        var items = query
-            .OrderBy(u => u.Id)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(u => new UserDto(u.Id, u.UserName))
-            .ToList();
-
-        return Ok(items);
+        var users = userRepository.GetMany();
+        // ev. filtrering og mapping til DTO
+        return users.Select(u => new UserDto(u.Id, u.UserName));
     }
+
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UserUpdateDto dto)
