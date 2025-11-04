@@ -17,14 +17,17 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserDto>> Create(UserCreateDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.UserName)) return BadRequest("Username required.");
+        if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.Password))
+            return BadRequest("Username and password are required.");
 
-      
         var exists = userRepository.GetMany().Any(u => u.UserName == dto.UserName);
         if (exists) return Conflict("Username already taken.");
 
-        var user = await userRepository.AddAsync(new User { UserName = dto.UserName });
-        return CreatedAtAction(nameof(GetSingle), new { id = user.Id }, new UserDto(user.Id, user.UserName));
+        var user = new User { UserName = dto.UserName, Password = dto.Password };
+        var created = await userRepository.AddAsync(user);
+
+        return CreatedAtAction(nameof(GetSingle), new { id = created.Id },
+            new UserDto(created.Id, created.UserName));
     }
 
     [HttpGet("{id:int}")]
@@ -41,15 +44,15 @@ public class UsersController : ControllerBase
         }
     }
 
-    
     [HttpGet]
-    public async Task<IEnumerable<UserDto>> GetMany([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+    public IEnumerable<UserDto> GetMany([FromQuery] string? search = null)
     {
-        var users = userRepository.GetMany();
-        // ev. filtrering og mapping til DTO
-        return users.Select(u => new UserDto(u.Id, u.UserName));
-    }
+        var q = userRepository.GetMany();
+        if (!string.IsNullOrWhiteSpace(search))
+            q = q.Where(u => u.UserName.Contains(search, StringComparison.OrdinalIgnoreCase));
 
+        return q.Select(u => new UserDto(u.Id, u.UserName));
+    }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UserUpdateDto dto)
@@ -58,7 +61,10 @@ public class UsersController : ControllerBase
 
         try
         {
-            await userRepository.UpdateAsync(new User { Id = dto.Id, UserName = dto.UserName });
+            var user = await userRepository.GetSingleAsync(id);
+            user.UserName = dto.UserName;
+            user.Password = dto.Password;
+            await userRepository.UpdateAsync(user);
             return NoContent();
         }
         catch (InvalidOperationException)

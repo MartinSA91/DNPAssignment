@@ -1,1 +1,12 @@
-[{"UserName":"Martin","Password":null,"Id":1}]
+[
+  {
+    "UserName": "Martin",
+    "Password": null,
+    "Id": 1
+  },
+  {
+    "UserName": "Hej",
+    "Password": "Martin1991",
+    "Id": 2
+  }
+]

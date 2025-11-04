@@ -1,0 +1,67 @@
+﻿@page "/posts/{PostId:int}"
+@using ApiContracts
+@using BlazorApp.Services
+@inject IPostService PostService
+@inject ICommentService CommentService
+
+<h3>Post Details</h3>
+
+@if (post == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="card p-3">
+        <h4>@post.Title</h4>
+        <p>@post.Body</p>
+        <p class="text-muted">Author ID: @post.UserId</p>
+    </div>
+
+    <h4 class="mt-4">Comments</h4>
+    <ul class="list-group">
+        @if (comments?.Count > 0)
+        {
+            @foreach (var c in comments)
+            {
+                <li class="list-group-item">
+                    <strong>User @c.UserId:</strong> @c.Body
+                </li>
+            }
+        }
+        else
+        {
+            <li class="list-group-item">No comments yet.</li>
+        }
+    </ul>
+
+    <h5 class="mt-4">Add a comment</h5>
+    <textarea @bind="newCommentBody" class="form-control" placeholder="Write your comment..."></textarea>
+    <button class="btn btn-primary mt-2" @onclick="AddCommentAsync">Submit</button>
+}
+
+@code {
+    [Parameter] public int PostId { get; set; }
+
+    private PostDto? post;
+    private List<CommentDto>? comments;
+    private string newCommentBody = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        post = await PostService.GetPostAsync(PostId);
+        comments = await CommentService.GetCommentsAsync();
+        comments = comments.Where(c => c.PostId == PostId).ToList();
+    }
+
+    private async Task AddCommentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(newCommentBody)) return;
+
+        var comment = new CommentCreateDto(PostId, 1, newCommentBody); // TODO: real UserId if login added
+        await CommentService.AddCommentAsync(comment);
+        comments = await CommentService.GetCommentsAsync();
+        comments = comments.Where(c => c.PostId == PostId).ToList();
+        newCommentBody = "";
+    }
+}

@@ -11,6 +11,14 @@
     <input @bind="username" class="form-control" placeholder="Enter username" />
 </div>
 
+<br/>
+<div class="form-group">
+    
+    <Label> Password:</Label>
+    <input @bind="password" class="form-control" placeholder="Enter password"/>
+</div>
+<br/>
+
 <button class="btn btn-primary mt-2" @onclick="CreateUserAsync">Create</button>
 
 @if (!string.IsNullOrEmpty(message))
@@ -20,13 +28,14 @@
 
 @code {
     private string username = "";
+    private string password = "";
     private string message = "";
 
     private async Task CreateUserAsync()
     {
         try
         {
-            await UserService.AddUserAsync(new UserCreateDto(username));
+            await UserService.AddUserAsync(new UserCreateDto(username, password));
             message = "User created successfully!";
             Nav.NavigateTo("/users");
         }

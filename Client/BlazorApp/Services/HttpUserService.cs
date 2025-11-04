@@ -17,13 +17,11 @@ public class HttpUserService : IUserService
         var url = "api/users";
         Console.WriteLine($"➡️ POST {httpClient.BaseAddress}{url}");
 
-        HttpResponseMessage httpResponse = await httpClient.PostAsJsonAsync(url, request);
-        string response = await httpResponse.Content.ReadAsStringAsync();
+        var httpResponse = await httpClient.PostAsJsonAsync(url, request);
+        var response = await httpResponse.Content.ReadAsStringAsync();
+
         if (!httpResponse.IsSuccessStatusCode)
-        {
-            Console.WriteLine($" Error creating user: {httpResponse.StatusCode} - {response}");
-            throw new Exception(response);
-        }
+            throw new Exception($"API returned {httpResponse.StatusCode}: {response}");
 
         return JsonSerializer.Deserialize<UserDto>(response, new JsonSerializerOptions
         {

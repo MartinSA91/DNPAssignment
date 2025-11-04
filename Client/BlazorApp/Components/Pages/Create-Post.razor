@@ -7,15 +7,6 @@
 
 <h3>Create Post</h3>
 
-<div class="form-group">
-    <label>Title:</label>
-    <input @bind="title" class="form-control" placeholder="Post title" />
-</div>
-
-<div class="form-group mt-2">
-    <label>Body:</label>
-    <textarea @bind="body" class="form-control" placeholder="Post content"></textarea>
-</div>
 
 <div class="form-group mt-2">
     <label>Author:</label>
@@ -27,6 +18,18 @@
         }
     </select>
 </div>
+
+<div class="form-group">
+    <label>Title:</label>
+    <input @bind="title" class="form-control" placeholder="Post title" />
+</div>
+
+<div class="form-group mt-2">
+    <label>Body:</label>
+    <textarea @bind="body" class="form-control" placeholder="Post content"></textarea>
+</div>
+
+
 
 <button class="btn btn-primary mt-3" @onclick="CreatePostAsync">Create Post</button>
 
