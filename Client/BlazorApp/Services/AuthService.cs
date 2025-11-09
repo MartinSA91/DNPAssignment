@@ -30,6 +30,7 @@ public class AuthService
             PropertyNameCaseInsensitive = true
         });
         await jsRuntime.InvokeVoidAsync("localStorage.setItem", "jwt", loginResponse.Token);
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", loginResponse.Token);
         return loginResponse;
     }
 }

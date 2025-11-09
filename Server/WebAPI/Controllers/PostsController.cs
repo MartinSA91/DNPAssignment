@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryContract;
 
-[Authorize]
+
 [ApiController]
 [Route("api/[controller]")]
 public class PostsController : ControllerBase
