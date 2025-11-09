@@ -8,12 +8,12 @@ namespace BlazorApp.Services;
 public class AuthService
 {
     private readonly HttpClient httpClient;
-    private readonly IJSRuntime js;
+    private readonly IJSRuntime jsRuntime;
 
-    public AuthService(HttpClient httpClient)
+    public AuthService(HttpClient httpClient, IJSRuntime jsRuntime)
     {
         this.httpClient = httpClient;
-        this.js = js;
+        this.jsRuntime = jsRuntime;
     }
 
     public async Task<LoginResponseDto?> LoginAsync(string username, string password)
@@ -29,7 +29,7 @@ public class AuthService
         {
             PropertyNameCaseInsensitive = true
         });
-        await js.InvokeVoidAsync("localStorage.setItem", "jwt", loginResponse.Token);
+        await jsRuntime.InvokeVoidAsync("localStorage.setItem", "jwt", loginResponse.Token);
         return loginResponse;
     }
 }

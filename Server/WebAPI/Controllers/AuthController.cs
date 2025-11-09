@@ -56,12 +56,8 @@ public class AuthController : ControllerBase
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-        return Ok(new
-        {
-            token = tokenString,
-            user.Id,
-            user.UserName
-        });
+        return Ok(new LoginResponseDto(tokenString, user.Id, user.UserName)
+       );
     }
     
 }

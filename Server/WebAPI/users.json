@@ -8,5 +8,15 @@
     "UserName": "Hej",
     "Password": "Martin1991",
     "Id": 2
+  },
+  {
+    "UserName": "Marx",
+    "Password": "MarxErTr\u00E6ls69",
+    "Id": 3
+  },
+  {
+    "UserName": "Duus",
+    "Password": "Duus4Life",
+    "Id": 4
   }
 ]

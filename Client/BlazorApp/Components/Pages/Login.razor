@@ -1,6 +1,8 @@
-﻿@page "/login"
+﻿@page "/"
+@page "/login"
 @using BlazorApp.Services
 @inject AuthService AuthService
+@inject IJSRuntime JsRuntime
 @inject NavigationManager Nav
 
 <div class="container mt-5">
@@ -42,11 +44,8 @@
         try
         {
             var result = await AuthService.LoginAsync(username, password);
-            if (result != null)
-            {
-                message = $" Welcome, {result.UserName}!";
-                Nav.NavigateTo("/posts", forceLoad: true);
-            }
+            await JsRuntime.InvokeVoidAsync("localStorage.setItem", "jwt", result!.Token);
+            Nav.NavigateTo("/home");
         }
         catch (Exception ex)
         {
