@@ -13,6 +13,7 @@ builder.Services.AddScoped(_ => new HttpClient
 });
 
 // Register API services
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IUserService, HttpUserService>();
 builder.Services.AddScoped<IPostService, HttpPostService>();
 builder.Services.AddScoped<ICommentService, HttpCommentService>();

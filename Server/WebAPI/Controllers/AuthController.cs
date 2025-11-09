@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ApiContracts;
+using Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryContract;
@@ -21,19 +23,20 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModel model)
+    public IActionResult Login([FromBody] LoginRequestDto dto)
     {
         // Tjek mod dit repository i stedet for hardcoded
         var user = userRepository.GetMany()
-            .FirstOrDefault(u => u.UserName == model.UserName && u.Password == model.Password);
+            .FirstOrDefault(u => u.UserName == dto.UserName && u.Password == dto.Password);
 
         if (user is null)
             return Unauthorized("Invalid username or password");
 
         // Token creation
-        var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
-        var issuer = configuration["Jwt:Issuer"];
-        var audience = configuration["Jwt:Audience"];
+        var jwtSection = configuration.GetSection("Jwt");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+       
 
         var claims = new[]
         {
@@ -41,15 +44,15 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.Name, user.UserName)
         };
 
-        var signingKey = new SymmetricSecurityKey(key);
-        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: jwtSection["Issuer"],
+            audience: jwtSection["Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: credentials);
+            expires: DateTime.UtcNow.AddMinutes(int.Parse(jwtSection["ExpiresInMinutes"])),
+            signingCredentials: creds
+        );
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
@@ -60,10 +63,5 @@ public class AuthController : ControllerBase
             user.UserName
         });
     }
-
-    public class LoginModel
-    {
-        public string UserName { get; set; } = "";
-        public string Password { get; set; } = "";
-    }
+    
 }

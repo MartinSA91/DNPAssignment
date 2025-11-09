@@ -1,0 +1,35 @@
+﻿using System.Text.Json;
+using System.Net.Http.Json;
+using ApiContracts;
+using Microsoft.JSInterop;
+
+namespace BlazorApp.Services;
+
+public class AuthService
+{
+    private readonly HttpClient httpClient;
+    private readonly IJSRuntime js;
+
+    public AuthService(HttpClient httpClient)
+    {
+        this.httpClient = httpClient;
+        this.js = js;
+    }
+
+    public async Task<LoginResponseDto?> LoginAsync(string username, string password)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/auth/login", new LoginRequestDto(username, password));
+        
+        var content = await response.Content.ReadAsStringAsync();
+        
+        if (!response.IsSuccessStatusCode)
+            throw new Exception($"Login failed: {content}");
+        
+        var loginResponse = JsonSerializer.Deserialize<LoginResponseDto>(content, new  JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        await js.InvokeVoidAsync("localStorage.setItem", "jwt", loginResponse.Token);
+        return loginResponse;
+    }
+}
